@@ -234,16 +234,16 @@ WHERE NOT EXISTS (
 -- Cách 1: Truy vấn lồng trong HAVING
 SELECT 
     c.Category_Name, 
-    SUM(od.Quantity * od.Price) AS Total_Category_Revenue
+    SUM(od.Quantity * od.unit_Price) AS Total_Category_Revenue
 FROM Category c
 JOIN Product p ON c.Category_ID = p.Category_ID
 JOIN Order_Detail od ON p.Product_ID = od.Product_ID
 GROUP BY c.Category_ID, c.Category_Name
-HAVING SUM(od.Quantity * od.Price) > (
+HAVING SUM(od.Quantity * od.unit_Price) > (
     -- Subquery tính 120% doanh thu trung bình của tất cả danh mục
     SELECT AVG(Category_Revenue) * 1.2
     FROM (
-        SELECT SUM(Quantity * Price) AS Category_Revenue
+        SELECT SUM(Quantity * unit_Price) AS Category_Revenue
         FROM Order_Detail od2
         JOIN Product p2 ON od2.Product_ID = p2.Product_ID
         GROUP BY p2.Category_ID
@@ -258,7 +258,7 @@ FROM (
     -- Bảng tạm 1: Tính doanh thu từng danh mục
     SELECT 
         c.Category_Name, 
-        SUM(od.Quantity * od.Price) AS Total_Revenue
+        SUM(od.Quantity * od.unit_Price) AS Total_Revenue
     FROM Category c
     JOIN Product p ON c.Category_ID = p.Category_ID
     JOIN Order_Detail od ON p.Product_ID = od.Product_ID
@@ -268,7 +268,7 @@ FROM (
     -- Bảng tạm 2: Tính ngưỡng doanh thu mục tiêu (120% trung bình)
     SELECT AVG(Cat_Sum) * 1.2 AS Target_Threshold
     FROM (
-        SELECT SUM(Quantity * Price) AS Cat_Sum
+        SELECT SUM(Quantity * unit_Price) AS Cat_Sum
         FROM Order_Detail od2
         JOIN Product p2 ON od2.Product_ID = p2.Product_ID
         GROUP BY p2.Category_ID
